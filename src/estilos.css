@@ -21,3 +21,22 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 .hoja { position: relative; background: var(--papel); border: 1px solid var(--borde); border-radius: 8px; overflow: hidden; }
 .indicador { position: absolute; width: 2px; background: var(--acento); pointer-events: none; }
 .estado { font-size: 13px; color: var(--suave); margin-left: auto; font-variant-numeric: tabular-nums; }
+.modos { display: flex; }
+.modos button { border-radius: 0; }
+.modos button:first-child { border-radius: 6px 0 0 6px; }
+.modos button:last-child { border-radius: 0 6px 6px 0; margin-left: -1px; }
+.suave { color: var(--suave); font-size: 13px; }
+.ok { color: #2e7d32; font-size: 13px; font-weight: 600; }
+.motivo { color: var(--acento); font-size: 13px; font-weight: 600; }
+.practica { gap: 8px 16px; }
+.chip { padding: 2px 10px; border-radius: 999px; font-size: 13px; font-weight: 600; color: #fff; }
+.chip.green, .golpe.green, .punto.green { background: #2e9d4f; }
+.chip.yellow, .golpe.yellow, .punto.yellow { background: #e0b000; }
+.chip.red, .golpe.red, .punto.red { background: #d33a2f; }
+.desvio { font-variant-numeric: tabular-nums; font-weight: 600; min-width: 72px; }
+.leyenda { margin-left: auto; font-size: 12px; color: var(--suave); display: flex; align-items: center; gap: 6px; }
+.punto { display: inline-block; width: 10px; height: 10px; border-radius: 50%; }
+.punto.omitida, .marca-omitida { border: 2px dashed #8a8a85; background: transparent; }
+.golpe { position: absolute; width: 14px; height: 14px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px rgba(0,0,0,.25); pointer-events: none; }
+.marca-omitida { position: absolute; width: 14px; height: 14px; border-radius: 50%; pointer-events: none; }
+.siguiente { position: absolute; width: 30px; background: rgba(40, 110, 255, 0.14); border-left: 2px solid rgba(40, 110, 255, 0.55); pointer-events: none; }

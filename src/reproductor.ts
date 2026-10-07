@@ -27,6 +27,10 @@ export interface Player {
   tick(): void;
   position(): PlayerPosition;
   isPlaying(): boolean;
+  /** Instante del reloj de audio (s) en que arrancó la reproducción. */
+  startTime(): number;
+  /** Duración de una vuelta de la partitura, en ms. */
+  durationMs(): number;
   setLoop(loop: boolean): void;
   setScore(score: Score): void;
 }
@@ -127,6 +131,8 @@ export function createPlayer(options: PlayerOptions): Player {
       return playing ? positionAt(audio.currentTime - startTime) : frozen;
     },
     isPlaying: () => playing,
+    startTime: () => startTime,
+    durationMs: () => totalS * 1000,
     setLoop(value) {
       loop = value;
     },
