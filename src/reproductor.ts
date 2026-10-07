@@ -6,6 +6,8 @@ export interface AudioSink {
   /** Reloj de audio en segundos (AudioContext.currentTime). */
   readonly currentTime: number;
   playNote(piece: Piece, time: number): void;
+  /** Click del metrónomo; `accent` marca el primer tiempo del compás. */
+  playClick(time: number, accent: boolean): void;
   cancelPending(): void;
 }
 
