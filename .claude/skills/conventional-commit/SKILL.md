@@ -7,11 +7,13 @@ description: Genera mensajes de commit siguiendo Conventional Commits. Se usa al
 
 Cuando generes un mensaje de commit:
 
-1. Mirá el `git diff --staged` para entender QUÉ cambió.
-2. Elegí el tipo: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`.
-3. Formato: `tipo(scope): descripción en imperativo`
+1. Hacé `git add` de los archivos que van en el commit (por nombre, evitá `git add -A` si hay cambios ajenos) antes de commitear.
+2. Mirá el `git diff --staged` para entender QUÉ cambió.
+3. Elegí el tipo: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`.
+4. Formato: `tipo(scope): descripción en imperativo`
    - en español (voseo), en minúscula, sin punto final, máx. 72 caracteres.
-4. Si rompe compatibilidad, agregá `BREAKING CHANGE:` en el cuerpo.
+5. Si rompe compatibilidad, agregá `BREAKING CHANGE:` en el cuerpo.
+6. Hacé el `git commit` con ese mensaje.
 
 Ejemplos:
 
