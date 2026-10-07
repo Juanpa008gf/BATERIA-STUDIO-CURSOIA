@@ -1,0 +1,597 @@
+{
+  "proyecto": "Drum Sync",
+  "actualizado": "2026-10-07",
+  "commit": "ecb6505",
+  "artifactUrl": "https://claude.ai/artifact/K6ePPTXipVqpdPjECRML9U",
+  "escala": "100 = hecho y verificado (tests o prueba manual). Entre 1 y 99 = hay una parte hecha, falta conectarla, probarla o completarla. 0 = sin empezar.",
+  "rf": [
+    {
+      "id": "RF-01.1",
+      "grupo": "Notación",
+      "titulo": "Pentagrama de percusión con clave neutra",
+      "pct": 100
+    },
+    {
+      "id": "RF-01.2",
+      "grupo": "Notación",
+      "titulo": "Indicador de posición durante la reproducción",
+      "pct": 100
+    },
+    {
+      "id": "RF-02.1",
+      "grupo": "Notación",
+      "titulo": "Escribir el kit completo (13 piezas)",
+      "pct": 70
+    },
+    {
+      "id": "RF-02.2",
+      "grupo": "Notación",
+      "titulo": "Cada pieza en su altura convencional",
+      "pct": 100
+    },
+    {
+      "id": "RF-03.1",
+      "grupo": "Notación",
+      "titulo": "Figuras de redonda a semicorchea",
+      "pct": 50
+    },
+    {
+      "id": "RF-03.2",
+      "grupo": "Notación",
+      "titulo": "Figuras en tresillo",
+      "pct": 50
+    },
+    {
+      "id": "RF-04.1",
+      "grupo": "Notación",
+      "titulo": "Silencios derivados de las notas",
+      "pct": 100
+    },
+    {
+      "id": "RF-04.2",
+      "grupo": "Notación",
+      "titulo": "Dos voces: manos y pies",
+      "pct": 100
+    },
+    {
+      "id": "RF-05.1",
+      "grupo": "Notación",
+      "titulo": "Barras por tiempo",
+      "pct": 100
+    },
+    {
+      "id": "RF-05.2",
+      "grupo": "Notación",
+      "titulo": "Corchete y número del tresillo",
+      "pct": 80
+    },
+    {
+      "id": "RF-06.1",
+      "grupo": "Notación",
+      "titulo": "Marcar la articulación de cada golpe",
+      "pct": 40
+    },
+    {
+      "id": "RF-06.2",
+      "grupo": "Notación",
+      "titulo": "Dibujar cada articulación distinta",
+      "pct": 60
+    },
+    {
+      "id": "RF-06.3",
+      "grupo": "Notación",
+      "titulo": "Sonido distinto por articulación",
+      "pct": 0
+    },
+    {
+      "id": "RF-07.1",
+      "grupo": "Notación",
+      "titulo": "Elegir el instrumento por la altura del clic",
+      "pct": 0
+    },
+    {
+      "id": "RF-07.2",
+      "grupo": "Notación",
+      "titulo": "Elegir la posición rítmica por el clic horizontal",
+      "pct": 0
+    },
+    {
+      "id": "RF-08.1",
+      "grupo": "Notación",
+      "titulo": "Añadir compases",
+      "pct": 0
+    },
+    {
+      "id": "RF-08.2",
+      "grupo": "Notación",
+      "titulo": "Quitar el último compás",
+      "pct": 0
+    },
+    {
+      "id": "RF-08.3",
+      "grupo": "Notación",
+      "titulo": "No quitar el último compás si es el único",
+      "pct": 0
+    },
+    {
+      "id": "RF-08.4",
+      "grupo": "Notación",
+      "titulo": "Tope de 128 compases",
+      "pct": 0
+    },
+    {
+      "id": "RF-09",
+      "grupo": "Notación",
+      "titulo": "Deshacer cualquier cambio de la partitura",
+      "pct": 0
+    },
+    {
+      "id": "RF-10.1",
+      "grupo": "Conexión con la batería MIDI",
+      "titulo": "Conectar la batería por Web MIDI",
+      "pct": 90
+    },
+    {
+      "id": "RF-10.2",
+      "grupo": "Conexión con la batería MIDI",
+      "titulo": "Listar las entradas MIDI",
+      "pct": 90
+    },
+    {
+      "id": "RF-10.3",
+      "grupo": "Conexión con la batería MIDI",
+      "titulo": "Deshabilitar grabación y práctica sin MIDI",
+      "pct": 80
+    },
+    {
+      "id": "RF-10.4",
+      "grupo": "Conexión con la batería MIDI",
+      "titulo": "Mostrar el motivo cuando falta MIDI",
+      "pct": 100
+    },
+    {
+      "id": "RF-10.5",
+      "grupo": "Conexión con la batería MIDI",
+      "titulo": "Entrada MIDI ocupada por otra aplicación",
+      "pct": 90
+    },
+    {
+      "id": "RF-11.1",
+      "grupo": "Conexión con la batería MIDI",
+      "titulo": "Mapeo General MIDI por defecto",
+      "pct": 100
+    },
+    {
+      "id": "RF-11.2",
+      "grupo": "Conexión con la batería MIDI",
+      "titulo": "Reasignar notas MIDI a piezas del kit",
+      "pct": 0
+    },
+    {
+      "id": "RF-12",
+      "grupo": "Conexión con la batería MIDI",
+      "titulo": "Mapeo MIDI guardado en la cuenta",
+      "pct": 0
+    },
+    {
+      "id": "RF-13",
+      "grupo": "Conexión con la batería MIDI",
+      "titulo": "Último golpe recibido en vivo",
+      "pct": 100
+    },
+    {
+      "id": "RF-14.1",
+      "grupo": "Escribir tocando: grabación de tomas",
+      "titulo": "Grabar una toma de 1 a 128 compases",
+      "pct": 90
+    },
+    {
+      "id": "RF-14.2",
+      "grupo": "Escribir tocando: grabación de tomas",
+      "titulo": "Golpes escritos como notas normales",
+      "pct": 80
+    },
+    {
+      "id": "RF-14.3",
+      "grupo": "Escribir tocando: grabación de tomas",
+      "titulo": "Cuantizar los golpes a la grilla",
+      "pct": 100,
+      "critico": true
+    },
+    {
+      "id": "RF-14.4",
+      "grupo": "Escribir tocando: grabación de tomas",
+      "titulo": "Reemplazar lo escrito en los compases de la toma",
+      "pct": 100
+    },
+    {
+      "id": "RF-14.5",
+      "grupo": "Escribir tocando: grabación de tomas",
+      "titulo": "Añadir los compases que falten",
+      "pct": 90
+    },
+    {
+      "id": "RF-14.6",
+      "grupo": "Escribir tocando: grabación de tomas",
+      "titulo": "La toma empieza siempre en el compás 1",
+      "pct": 100
+    },
+    {
+      "id": "RF-14.7",
+      "grupo": "Escribir tocando: grabación de tomas",
+      "titulo": "Duración deducida del golpe siguiente",
+      "pct": 100
+    },
+    {
+      "id": "RF-15.1",
+      "grupo": "Escribir tocando: grabación de tomas",
+      "titulo": "Arrancar la toma al primer golpe",
+      "pct": 90
+    },
+    {
+      "id": "RF-15.2",
+      "grupo": "Escribir tocando: grabación de tomas",
+      "titulo": "Arrancar con cuenta previa de un compás",
+      "pct": 0
+    },
+    {
+      "id": "RF-16.1",
+      "grupo": "Escribir tocando: grabación de tomas",
+      "titulo": "Terminar al completar los compases",
+      "pct": 90
+    },
+    {
+      "id": "RF-16.2",
+      "grupo": "Escribir tocando: grabación de tomas",
+      "titulo": "Terminar con Detener o Esc",
+      "pct": 90
+    },
+    {
+      "id": "RF-16.3",
+      "grupo": "Escribir tocando: grabación de tomas",
+      "titulo": "Conservar los golpes ya escritos",
+      "pct": 90
+    },
+    {
+      "id": "RF-17.1",
+      "grupo": "Escribir tocando: grabación de tomas",
+      "titulo": "Conservar los golpes simultáneos",
+      "pct": 100
+    },
+    {
+      "id": "RF-17.2",
+      "grupo": "Escribir tocando: grabación de tomas",
+      "titulo": "Fusionar golpes de la misma pieza en un paso",
+      "pct": 100
+    },
+    {
+      "id": "RF-17.3",
+      "grupo": "Escribir tocando: grabación de tomas",
+      "titulo": "Ignorar soltar el pad y la intensidad cero",
+      "pct": 100
+    },
+    {
+      "id": "RF-18.1",
+      "grupo": "Transporte y sonido",
+      "titulo": "Tempo de 30 a 260 BPM escribiendo el número",
+      "pct": 100
+    },
+    {
+      "id": "RF-18.2",
+      "grupo": "Transporte y sonido",
+      "titulo": "Elegir el compás",
+      "pct": 100
+    },
+    {
+      "id": "RF-18.3",
+      "grupo": "Transporte y sonido",
+      "titulo": "Tempo fuera de rango al límite más cercano",
+      "pct": 100
+    },
+    {
+      "id": "RF-18.4",
+      "grupo": "Transporte y sonido",
+      "titulo": "Numerador de 1 a 16, denominador 2, 4, 8 o 16",
+      "pct": 100
+    },
+    {
+      "id": "RF-19.1",
+      "grupo": "Transporte y sonido",
+      "titulo": "Play reproduce desde el compás 1",
+      "pct": 100,
+      "critico": true
+    },
+    {
+      "id": "RF-19.2",
+      "grupo": "Transporte y sonido",
+      "titulo": "Detener la reproducción",
+      "pct": 90
+    },
+    {
+      "id": "RF-19.3",
+      "grupo": "Transporte y sonido",
+      "titulo": "Reproducir en bucle",
+      "pct": 90
+    },
+    {
+      "id": "RF-20.1",
+      "grupo": "Transporte y sonido",
+      "titulo": "Activar y desactivar el metrónomo",
+      "pct": 0
+    },
+    {
+      "id": "RF-20.2",
+      "grupo": "Transporte y sonido",
+      "titulo": "Metrónomo durante la reproducción",
+      "pct": 0
+    },
+    {
+      "id": "RF-20.3",
+      "grupo": "Transporte y sonido",
+      "titulo": "Metrónomo durante la grabación",
+      "pct": 0
+    },
+    {
+      "id": "RF-20.4",
+      "grupo": "Transporte y sonido",
+      "titulo": "Metrónomo durante el Modo Práctica",
+      "pct": 0
+    },
+    {
+      "id": "RF-20.5",
+      "grupo": "Transporte y sonido",
+      "titulo": "Pulso del compás con acento en el primer tiempo",
+      "pct": 0
+    },
+    {
+      "id": "RF-20.6",
+      "grupo": "Transporte y sonido",
+      "titulo": "Metrónomo ajustado al tempo",
+      "pct": 0
+    },
+    {
+      "id": "RF-20.7",
+      "grupo": "Transporte y sonido",
+      "titulo": "Metrónomo ajustado al compás",
+      "pct": 0
+    },
+    {
+      "id": "RF-20.8",
+      "grupo": "Transporte y sonido",
+      "titulo": "Volumen propio del metrónomo",
+      "pct": 0
+    },
+    {
+      "id": "RF-21.1",
+      "grupo": "Transporte y sonido",
+      "titulo": "Kit predefinido de samples reales",
+      "pct": 0
+    },
+    {
+      "id": "RF-21.2",
+      "grupo": "Transporte y sonido",
+      "titulo": "Un sonido distinto para cada pieza",
+      "pct": 40
+    },
+    {
+      "id": "RF-21.3",
+      "grupo": "Transporte y sonido",
+      "titulo": "Habilitar Play solo con el kit cargado",
+      "pct": 0
+    },
+    {
+      "id": "RF-21.4",
+      "grupo": "Transporte y sonido",
+      "titulo": "Mostrar que el kit está cargando",
+      "pct": 0
+    },
+    {
+      "id": "RF-22.1",
+      "grupo": "Guardado y biblioteca",
+      "titulo": "Autoguardado en el servidor",
+      "pct": 0
+    },
+    {
+      "id": "RF-22.2",
+      "grupo": "Guardado y biblioteca",
+      "titulo": "Recuperar la partitura en curso al abrir",
+      "pct": 0
+    },
+    {
+      "id": "RF-23.1",
+      "grupo": "Guardado y biblioteca",
+      "titulo": "Guardar en la biblioteca con un nombre",
+      "pct": 0
+    },
+    {
+      "id": "RF-23.2",
+      "grupo": "Guardado y biblioteca",
+      "titulo": "Volver a guardar sobre una partitura existente",
+      "pct": 0
+    },
+    {
+      "id": "RF-23.3",
+      "grupo": "Guardado y biblioteca",
+      "titulo": "No guardar con el nombre vacío",
+      "pct": 0
+    },
+    {
+      "id": "RF-23.4",
+      "grupo": "Guardado y biblioteca",
+      "titulo": "No guardar con el nombre de otra partitura",
+      "pct": 0
+    },
+    {
+      "id": "RF-24",
+      "grupo": "Guardado y biblioteca",
+      "titulo": "Listado de la biblioteca",
+      "pct": 0
+    },
+    {
+      "id": "RF-25",
+      "grupo": "Guardado y biblioteca",
+      "titulo": "Abrir una partitura de la biblioteca",
+      "pct": 0
+    },
+    {
+      "id": "RF-26.1",
+      "grupo": "Guardado y biblioteca",
+      "titulo": "Confirmar antes de eliminar",
+      "pct": 0
+    },
+    {
+      "id": "RF-26.2",
+      "grupo": "Guardado y biblioteca",
+      "titulo": "Eliminar la partitura de forma definitiva",
+      "pct": 0
+    },
+    {
+      "id": "RF-27.1",
+      "grupo": "Modo Práctica",
+      "titulo": "Ofrecer el Modo Práctica",
+      "pct": 100
+    },
+    {
+      "id": "RF-27.2",
+      "grupo": "Modo Práctica",
+      "titulo": "Arrancar con la partitura en silencio",
+      "pct": 100
+    },
+    {
+      "id": "RF-28",
+      "grupo": "Modo Práctica",
+      "titulo": "Destacar la próxima nota esperada",
+      "pct": 100
+    },
+    {
+      "id": "RF-29.1",
+      "grupo": "Modo Práctica",
+      "titulo": "Comparar cada golpe con la nota esperada más cercana",
+      "pct": 100,
+      "critico": true
+    },
+    {
+      "id": "RF-29.2",
+      "grupo": "Modo Práctica",
+      "titulo": "Verde hasta 100 ms de desvío",
+      "pct": 100,
+      "critico": true
+    },
+    {
+      "id": "RF-29.3",
+      "grupo": "Modo Práctica",
+      "titulo": "Amarillo hasta 250 ms de desvío",
+      "pct": 100,
+      "critico": true
+    },
+    {
+      "id": "RF-29.4",
+      "grupo": "Modo Práctica",
+      "titulo": "Rojo por más de 250 ms o pieza distinta",
+      "pct": 100,
+      "critico": true
+    },
+    {
+      "id": "RF-29.5",
+      "grupo": "Modo Práctica",
+      "titulo": "Marcar la nota omitida",
+      "pct": 100
+    },
+    {
+      "id": "RF-30.1",
+      "grupo": "Modo Práctica",
+      "titulo": "Pieza esperada en vivo",
+      "pct": 100
+    },
+    {
+      "id": "RF-30.2",
+      "grupo": "Modo Práctica",
+      "titulo": "Resultado de cada golpe en vivo",
+      "pct": 100
+    },
+    {
+      "id": "RF-30.3",
+      "grupo": "Modo Práctica",
+      "titulo": "Desvío en milisegundos con signo",
+      "pct": 100
+    },
+    {
+      "id": "RF-30.4",
+      "grupo": "Modo Práctica",
+      "titulo": "Usar el bucle en el Modo Práctica",
+      "pct": 80
+    },
+    {
+      "id": "RF-31",
+      "grupo": "Modo Práctica",
+      "titulo": "Volumen de la partitura independiente del metrónomo",
+      "pct": 0
+    },
+    {
+      "id": "RF-32",
+      "grupo": "Identificación de usuario",
+      "titulo": "Sesión de Google obligatoria para entrar",
+      "pct": 0
+    },
+    {
+      "id": "RF-33",
+      "grupo": "Identificación de usuario",
+      "titulo": "Registro del usuario nuevo",
+      "pct": 0
+    },
+    {
+      "id": "RF-34",
+      "grupo": "Identificación de usuario",
+      "titulo": "Login con el perfil existente",
+      "pct": 0
+    },
+    {
+      "id": "RF-35",
+      "grupo": "Identificación de usuario",
+      "titulo": "Sesión persistente entre cierres",
+      "pct": 0
+    },
+    {
+      "id": "RF-35.1",
+      "grupo": "Identificación de usuario",
+      "titulo": "Sin almacén seguro no se inicia sesión",
+      "pct": 0
+    },
+    {
+      "id": "RF-36",
+      "grupo": "Identificación de usuario",
+      "titulo": "Cerrar sesión",
+      "pct": 0
+    },
+    {
+      "id": "RF-37",
+      "grupo": "Identificación de usuario",
+      "titulo": "Cada partitura asociada a su dueño",
+      "pct": 0
+    },
+    {
+      "id": "RF-38",
+      "grupo": "Identificación de usuario",
+      "titulo": "Biblioteca solo con las partituras del usuario",
+      "pct": 0
+    },
+    {
+      "id": "RF-39.1",
+      "grupo": "Conexión con el servidor",
+      "titulo": "Aviso de \"Sin conexión\" al abrir",
+      "pct": 0
+    },
+    {
+      "id": "RF-39.2",
+      "grupo": "Conexión con el servidor",
+      "titulo": "Sin acceso al editor sin conexión",
+      "pct": 0
+    },
+    {
+      "id": "RF-40",
+      "grupo": "Conexión con el servidor",
+      "titulo": "Aviso al perder la conexión durante el uso",
+      "pct": 0
+    }
+  ]
+}

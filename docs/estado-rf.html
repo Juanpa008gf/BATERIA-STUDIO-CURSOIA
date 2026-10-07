@@ -1,0 +1,780 @@
+<title>Avance del PRD</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+  /* Tablero de lectura rápida: resumen arriba, un grupo por funcionalidad, una fila por RF. */
+  :root {
+    --bg: #f4f5f3;
+    --surface: #ffffff;
+    --fg: #1c2321;
+    --muted: #5d6764;
+    --line: #dde1de;
+    --track: #e6e9e6;
+    --hecho: #1f7a4d;
+    --parcial: #b7791f;
+    --pendiente: #8a9490;
+    --critico: #b3261e;
+    --font-body: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --font-mono: 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #141918; --surface: #1c2220; --fg: #e8ece9; --muted: #98a39f; --line: #2c3532; --track: #2a322f;
+      --hecho: #4cc38a; --parcial: #e3a94a; --pendiente: #6f7a76; --critico: #ff7b72;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #141918; --surface: #1c2220; --fg: #e8ece9; --muted: #98a39f; --line: #2c3532; --track: #2a322f;
+    --hecho: #4cc38a; --parcial: #e3a94a; --pendiente: #6f7a76; --critico: #ff7b72;
+    color-scheme: dark;
+  }
+  body { background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 15px; line-height: 1.45; padding-inline: 16px; padding-block: 28px 56px; }
+  .pagina { max-width: 860px; margin-inline: auto; display: flex; flex-direction: column; gap: 28px; }
+  h1, h2, p { margin: 0; }
+
+  .resumen { display: grid; grid-template-columns: auto 1fr; gap: 8px 28px; align-items: end; }
+  .resumen h1 { grid-column: 1 / -1; font-size: 15px; font-weight: 500; color: var(--muted); letter-spacing: .02em; }
+  .total { font-size: clamp(56px, 14vw, 88px); font-weight: 600; line-height: 1; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+  .total small { font-size: .4em; font-weight: 500; color: var(--muted); margin-left: 2px; }
+  .datos { min-width: 0; display: flex; flex-direction: column; gap: 10px; padding-bottom: 6px; }
+  .reparto { display: flex; height: 10px; border-radius: 3px; overflow: hidden; background: var(--track); }
+  .reparto i { display: block; height: 100%; }
+  .reparto .hecho { background: var(--hecho); }
+  .reparto .parcial { background: var(--parcial); }
+  .conteo { display: flex; flex-wrap: wrap; gap: 4px 18px; font-size: 13px; color: var(--muted); }
+  .conteo b { color: var(--fg); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .conteo span::before { content: ''; display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; background: var(--pendiente); }
+  .conteo .hecho::before { background: var(--hecho); }
+  .conteo .parcial::before { background: var(--parcial); }
+  .criticos { font-size: 13px; color: var(--muted); }
+  .criticos strong { color: var(--critico); font-weight: 600; }
+  .meta { font-size: 12px; color: var(--muted); font-family: var(--font-mono); }
+
+  .filtros { display: flex; flex-wrap: wrap; gap: 8px; }
+  .filtros button { font: inherit; font-size: 13px; padding: 5px 12px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); border-radius: 6px; cursor: pointer; }
+  .filtros button[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+  .filtros button:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+
+  .grupo { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  .grupo-cab { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 4px 16px; padding: 14px 16px; border-bottom: 1px solid var(--line); }
+  .grupo-cab h2 { font-size: 16px; font-weight: 600; min-width: 0; }
+  .grupo-dato { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .grupo-dato strong { color: var(--fg); }
+  .lista { list-style: none; margin: 0; padding: 0; }
+  .rf { display: grid; grid-template-columns: 64px minmax(0, 1fr) 120px 44px; align-items: center; gap: 4px 14px; padding: 9px 16px; }
+  .rf + .rf { border-top: 1px solid var(--line); }
+  .rf[hidden] { display: none; }
+  .rf-id { font-family: var(--font-mono); font-size: 12.5px; color: var(--muted); }
+  .rf-titulo { min-width: 0; }
+  .critico { font-family: var(--font-mono); font-size: 11px; font-weight: 500; color: var(--critico); border: 1px solid currentColor; border-radius: 3px; padding: 0 5px; margin-left: 6px; white-space: nowrap; }
+  .rf-barra { display: block; height: 8px; border-radius: 3px; background: var(--track); overflow: hidden; }
+  .rf-barra i { display: block; height: 100%; border-radius: 3px; background: var(--pendiente); }
+  .rf.hecho .rf-barra i { background: var(--hecho); }
+  .rf.parcial .rf-barra i { background: var(--parcial); }
+  .rf-pct { text-align: right; font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .rf.pendiente .rf-pct { color: var(--muted); font-weight: 400; }
+
+  .escala { font-size: 12.5px; color: var(--muted); max-width: 65ch; }
+
+  @media (max-width: 560px) {
+    .resumen { grid-template-columns: 1fr; }
+    .rf { grid-template-columns: 56px minmax(0, 1fr) 40px; }
+    .rf-barra { grid-column: 2 / 3; grid-row: 2; }
+    .rf-pct { grid-row: 1; grid-column: 3; }
+    .rf-id { grid-row: 1; }
+  }
+</style>
+
+<main class="pagina">
+  <header class="resumen">
+    <h1>Drum Sync · avance de los requerimientos funcionales</h1>
+    <p class="total">50<small>%</small></p>
+    <div class="datos">
+      <div class="reparto" role="img" aria-label="32 completos, 21 parciales, 44 sin empezar">
+        <i class="hecho" style="width:32.98969072164948%"></i><i class="parcial" style="width:21.649484536082475%"></i>
+      </div>
+      <p class="conteo">
+        <span class="hecho"><b>32</b> completos</span>
+        <span class="parcial"><b>21</b> parciales</span>
+        <span><b>44</b> sin empezar</span>
+        <span style="--x:0"><b>97</b> en total</span>
+      </p>
+      <p class="criticos"><strong>@CRITICO</strong> · 100% en promedio (6 de 6 completos)</p>
+      <p class="meta">actualizado 2026-10-07 · commit ecb6505</p>
+    </div>
+  </header>
+
+  <div class="filtros" role="group" aria-label="Filtrar requerimientos">
+    <button type="button" id="f-todos" aria-pressed="true" data-filtro="todos">Todos</button>
+    <button type="button" id="f-criticos" aria-pressed="false" data-filtro="criticos">Solo @CRITICO</button>
+    <button type="button" id="f-pendientes" aria-pressed="false" data-filtro="pendientes">Sin completar</button>
+  </div>
+
+    <section class="grupo" data-grupo>
+      <header class="grupo-cab">
+        <h2>Notación</h2>
+        <p class="grupo-dato"><strong>48%</strong> · 6 de 20 completos</p>
+      </header>
+      <ul class="lista">
+        <li class="rf hecho" data-estado="hecho" data-critico="0">
+          <span class="rf-id">RF-01.1</span>
+          <span class="rf-titulo">Pentagrama de percusión con clave neutra</span>
+          <span class="rf-barra" role="img" aria-label="100 por ciento"><i style="width:100%"></i></span>
+          <span class="rf-pct">100%</span>
+        </li>
+        <li class="rf hecho" data-estado="hecho" data-critico="0">
+          <span class="rf-id">RF-01.2</span>
+          <span class="rf-titulo">Indicador de posición durante la reproducción</span>
+          <span class="rf-barra" role="img" aria-label="100 por ciento"><i style="width:100%"></i></span>
+          <span class="rf-pct">100%</span>
+        </li>
+        <li class="rf parcial" data-estado="parcial" data-critico="0">
+          <span class="rf-id">RF-02.1</span>
+          <span class="rf-titulo">Escribir el kit completo (13 piezas)</span>
+          <span class="rf-barra" role="img" aria-label="70 por ciento"><i style="width:70%"></i></span>
+          <span class="rf-pct">70%</span>
+        </li>
+        <li class="rf hecho" data-estado="hecho" data-critico="0">
+          <span class="rf-id">RF-02.2</span>
+          <span class="rf-titulo">Cada pieza en su altura convencional</span>
+          <span class="rf-barra" role="img" aria-label="100 por ciento"><i style="width:100%"></i></span>
+          <span class="rf-pct">100%</span>
+        </li>
+        <li class="rf parcial" data-estado="parcial" data-critico="0">
+          <span class="rf-id">RF-03.1</span>
+          <span class="rf-titulo">Figuras de redonda a semicorchea</span>
+          <span class="rf-barra" role="img" aria-label="50 por ciento"><i style="width:50%"></i></span>
+          <span class="rf-pct">50%</span>
+        </li>
+        <li class="rf parcial" data-estado="parcial" data-critico="0">
+          <span class="rf-id">RF-03.2</span>
+          <span class="rf-titulo">Figuras en tresillo</span>
+          <span class="rf-barra" role="img" aria-label="50 por ciento"><i style="width:50%"></i></span>
+          <span class="rf-pct">50%</span>
+        </li>
+        <li class="rf hecho" data-estado="hecho" data-critico="0">
+          <span class="rf-id">RF-04.1</span>
+          <span class="rf-titulo">Silencios derivados de las notas</span>
+          <span class="rf-barra" role="img" aria-label="100 por ciento"><i style="width:100%"></i></span>
+          <span class="rf-pct">100%</span>
+        </li>
+        <li class="rf hecho" data-estado="hecho" data-critico="0">
+          <span class="rf-id">RF-04.2</span>
+          <span class="rf-titulo">Dos voces: manos y pies</span>
+          <span class="rf-barra" role="img" aria-label="100 por ciento"><i style="width:100%"></i></span>
+          <span class="rf-pct">100%</span>
+        </li>
+        <li class="rf hecho" data-estado="hecho" data-critico="0">
+          <span class="rf-id">RF-05.1</span>
+          <span class="rf-titulo">Barras por tiempo</span>
+          <span class="rf-barra" role="img" aria-label="100 por ciento"><i style="width:100%"></i></span>
+          <span class="rf-pct">100%</span>
+        </li>
+        <li class="rf parcial" data-estado="parcial" data-critico="0">
+          <span class="rf-id">RF-05.2</span>
+          <span class="rf-titulo">Corchete y número del tresillo</span>
+          <span class="rf-barra" role="img" aria-label="80 por ciento"><i style="width:80%"></i></span>
+          <span class="rf-pct">80%</span>
+        </li>
+        <li class="rf parcial" data-estado="parcial" data-critico="0">
+          <span class="rf-id">RF-06.1</span>
+          <span class="rf-titulo">Marcar la articulación de cada golpe</span>
+          <span class="rf-barra" role="img" aria-label="40 por ciento"><i style="width:40%"></i></span>
+          <span class="rf-pct">40%</span>
+        </li>
+        <li class="rf parcial" data-estado="parcial" data-critico="0">
+          <span class="rf-id">RF-06.2</span>
+          <span class="rf-titulo">Dibujar cada articulación distinta</span>
+          <span class="rf-barra" role="img" aria-label="60 por ciento"><i style="width:60%"></i></span>
+          <span class="rf-pct">60%</span>
+        </li>
+        <li class="rf pendiente" data-estado="pendiente" data-critico="0">
+          <span class="rf-id">RF-06.3</span>
+          <span class="rf-titulo">Sonido distinto por articulación</span>
+          <span class="rf-barra" role="img" aria-label="0 por ciento"><i style="width:0%"></i></span>
+          <span class="rf-pct">0%</span>
+        </li>
+        <li class="rf pendiente" data-estado="pendiente" data-critico="0">
+          <span class="rf-id">RF-07.1</span>
+          <span class="rf-titulo">Elegir el instrumento por la altura del clic</span>
+          <span class="rf-barra" role="img" aria-label="0 por ciento"><i style="width:0%"></i></span>
+          <span class="rf-pct">0%</span>
+        </li>
+        <li class="rf pendiente" data-estado="pendiente" data-critico="0">
+          <span class="rf-id">RF-07.2</span>
+          <span class="rf-titulo">Elegir la posición rítmica por el clic horizontal</span>
+          <span class="rf-barra" role="img" aria-label="0 por ciento"><i style="width:0%"></i></span>
+          <span class="rf-pct">0%</span>
+        </li>
+        <li class="rf pendiente" data-estado="pendiente" data-critico="0">
+          <span class="rf-id">RF-08.1</span>
+          <span class="rf-titulo">Añadir compases</span>
+          <span class="rf-barra" role="img" aria-label="0 por ciento"><i style="width:0%"></i></span>
+          <span class="rf-pct">0%</span>
+        </li>
+        <li class="rf pendiente" data-estado="pendiente" data-critico="0">
+          <span class="rf-id">RF-08.2</span>
+          <span class="rf-titulo">Quitar el último compás</span>
+          <span class="rf-barra" role="img" aria-label="0 por ciento"><i style="width:0%"></i></span>
+          <span class="rf-pct">0%</span>
+        </li>
+        <li class="rf pendiente" data-estado="pendiente" data-critico="0">
+          <span class="rf-id">RF-08.3</span>
+          <span class="rf-titulo">No quitar el último compás si es el único</span>
+          <span class="rf-barra" role="img" aria-label="0 por ciento"><i style="width:0%"></i></span>
+          <span class="rf-pct">0%</span>
+        </li>
+        <li class="rf pendiente" data-estado="pendiente" data-critico="0">
+          <span class="rf-id">RF-08.4</span>
+          <span class="rf-titulo">Tope de 128 compases</span>
+          <span class="rf-barra" role="img" aria-label="0 por ciento"><i style="width:0%"></i></span>
+          <span class="rf-pct">0%</span>
+        </li>
+        <li class="rf pendiente" data-estado="pendiente" data-critico="0">
+          <span class="rf-id">RF-09</span>
+          <span class="rf-titulo">Deshacer cualquier cambio de la partitura</span>
+          <span class="rf-barra" role="img" aria-label="0 por ciento"><i style="width:0%"></i></span>
+          <span class="rf-pct">0%</span>
+        </li>
+      </ul>
+    </section>
+    <section class="grupo" data-grupo>
+      <header class="grupo-cab">
+        <h2>Conexión con la batería MIDI</h2>
+        <p class="grupo-dato"><strong>72%</strong> · 3 de 9 completos</p>
+      </header>
+      <ul class="lista">
+        <li class="rf parcial" data-estado="parcial" data-critico="0">
+          <span class="rf-id">RF-10.1</span>
+          <span class="rf-titulo">Conectar la batería por Web MIDI</span>
+          <span class="rf-barra" role="img" aria-label="90 por ciento"><i style="width:90%"></i></span>
+          <span class="rf-pct">90%</span>
+        </li>
+        <li class="rf parcial" data-estado="parcial" data-critico="0">
+          <span class="rf-id">RF-10.2</span>
+          <span class="rf-titulo">Listar las entradas MIDI</span>
+          <span class="rf-barra" role="img" aria-label="90 por ciento"><i style="width:90%"></i></span>
+          <span class="rf-pct">90%</span>
+        </li>
+        <li class="rf parcial" data-estado="parcial" data-critico="0">
+          <span class="rf-id">RF-10.3</span>
+          <span class="rf-titulo">Deshabilitar grabación y práctica sin MIDI</span>
+          <span class="rf-barra" role="img" aria-label="80 por ciento"><i style="width:80%"></i></span>
+          <span class="rf-pct">80%</span>
+        </li>
+        <li class="rf hecho" data-estado="hecho" data-critico="0">
+          <span class="rf-id">RF-10.4</span>
+          <span class="rf-titulo">Mostrar el motivo cuando falta MIDI</span>
+          <span class="rf-barra" role="img" aria-label="100 por ciento"><i style="width:100%"></i></span>
+          <span class="rf-pct">100%</span>
+        </li>
+        <li class="rf parcial" data-estado="parcial" data-critico="0">
+          <span class="rf-id">RF-10.5</span>
+          <span class="rf-titulo">Entrada MIDI ocupada por otra aplicación</span>
+          <span class="rf-barra" role="img" aria-label="90 por ciento"><i style="width:90%"></i></span>
+          <span class="rf-pct">90%</span>
+        </li>
+        <li class="rf hecho" data-estado="hecho" data-critico="0">
+          <span class="rf-id">RF-11.1</span>
+          <span class="rf-titulo">Mapeo General MIDI por defecto</span>
+          <span class="rf-barra" role="img" aria-label="100 por ciento"><i style="width:100%"></i></span>
+          <span class="rf-pct">100%</span>
+        </li>
+        <li class="rf pendiente" data-estado="pendiente" data-critico="0">
+          <span class="rf-id">RF-11.2</span>
+          <span class="rf-titulo">Reasignar notas MIDI a piezas del kit</span>
+          <span class="rf-barra" role="img" aria-label="0 por ciento"><i style="width:0%"></i></span>
+          <span class="rf-pct">0%</span>
+        </li>
+        <li class="rf pendiente" data-estado="pendiente" data-critico="0">
+          <span class="rf-id">RF-12</span>
+          <span class="rf-titulo">Mapeo MIDI guardado en la cuenta</span>
+          <span class="rf-barra" role="img" aria-label="0 por ciento"><i style="width:0%"></i></span>
+          <span class="rf-pct">0%</span>
+        </li>
+        <li class="rf hecho" data-estado="hecho" data-critico="0">
+          <span class="rf-id">RF-13</span>
+          <span class="rf-titulo">Último golpe recibido en vivo</span>
+          <span class="rf-barra" role="img" aria-label="100 por ciento"><i style="width:100%"></i></span>
+          <span class="rf-pct">100%</span>
+        </li>
+      </ul>
+    </section>
+    <section class="grupo" data-grupo>
+      <header class="grupo-cab">
+        <h2>Escribir tocando: grabación de tomas</h2>
+        <p class="grupo-dato"><strong>88%</strong> · 7 de 15 completos</p>
+      </header>
+      <ul class="lista">
+        <li class="rf parcial" data-estado="parcial" data-critico="0">
+          <span class="rf-id">RF-14.1</span>
+          <span class="rf-titulo">Grabar una toma de 1 a 128 compases</span>
+          <span class="rf-barra" role="img" aria-label="90 por ciento"><i style="width:90%"></i></span>
+          <span class="rf-pct">90%</span>
+        </li>
+        <li class="rf parcial" data-estado="parcial" data-critico="0">
+          <span class="rf-id">RF-14.2</span>
+          <span class="rf-titulo">Golpes escritos como notas normales</span>
+          <span class="rf-barra" role="img" aria-label="80 por ciento"><i style="width:80%"></i></span>
+          <span class="rf-pct">80%</span>
+        </li>
+        <li class="rf hecho" data-estado="hecho" data-critico="1">
+          <span class="rf-id">RF-14.3</span>
+          <span class="rf-titulo">Cuantizar los golpes a la grilla <span class="critico">@CRITICO</span></span>
+          <span class="rf-barra" role="img" aria-label="100 por ciento"><i style="width:100%"></i></span>
+          <span class="rf-pct">100%</span>
+        </li>
+        <li class="rf hecho" data-estado="hecho" data-critico="0">
+          <span class="rf-id">RF-14.4</span>
+          <span class="rf-titulo">Reemplazar lo escrito en los compases de la toma</span>
+          <span class="rf-barra" role="img" aria-label="100 por ciento"><i style="width:100%"></i></span>
+          <span class="rf-pct">100%</span>
+        </li>
+        <li class="rf parcial" data-estado="parcial" data-critico="0">
+          <span class="rf-id">RF-14.5</span>
+          <span class="rf-titulo">Añadir los compases que falten</span>
+          <span class="rf-barra" role="img" aria-label="90 por ciento"><i style="width:90%"></i></span>
+          <span class="rf-pct">90%</span>
+        </li>
+        <li class="rf hecho" data-estado="hecho" data-critico="0">
+          <span class="rf-id">RF-14.6</span>
+          <span class="rf-titulo">La toma empieza siempre en el compás 1</span>
+          <span class="rf-barra" role="img" aria-label="100 por ciento"><i style="width:100%"></i></span>
+          <span class="rf-pct">100%</span>
+        </li>
+        <li class="rf hecho" data-estado="hecho" data-critico="0">
+          <span class="rf-id">RF-14.7</span>
+          <span class="rf-titulo">Duración deducida del golpe siguiente</span>
+          <span class="rf-barra" role="img" aria-label="100 por ciento"><i style="width:100%"></i></span>
+          <span class="rf-pct">100%</span>
+        </li>
+        <li class="rf parcial" data-estado="parcial" data-critico="0">
+          <span class="rf-id">RF-15.1</span>
+          <span class="rf-titulo">Arrancar la toma al primer golpe</span>
+          <span class="rf-barra" role="img" aria-label="90 por ciento"><i style="width:90%"></i></span>
+          <span class="rf-pct">90%</span>
+        </li>
+        <li class="rf pendiente" data-estado="pendiente" data-critico="0">
+          <span class="rf-id">RF-15.2</span>
+          <span class="rf-titulo">Arrancar con cuenta previa de un compás</span>
+          <span class="rf-barra" role="img" aria-label="0 por ciento"><i style="width:0%"></i></span>
+          <span class="rf-pct">0%</span>
+        </li>
+        <li class="rf parcial" data-estado="parcial" data-critico="0">
+          <span class="rf-id">RF-16.1</span>
+          <span class="rf-titulo">Terminar al completar los compases</span>
+          <span class="rf-barra" role="img" aria-label="90 por ciento"><i style="width:90%"></i></span>
+          <span class="rf-pct">90%</span>
+        </li>
+        <li class="rf parcial" data-estado="parcial" data-critico="0">
+          <span class="rf-id">RF-16.2</span>
+          <span class="rf-titulo">Terminar con Detener o Esc</span>
+          <span class="rf-barra" role="img" aria-label="90 por ciento"><i style="width:90%"></i></span>
+          <span class="rf-pct">90%</span>
+        </li>
+        <li class="rf parcial" data-estado="parcial" data-critico="0">
+          <span class="rf-id">RF-16.3</span>
+          <span class="rf-titulo">Conservar los golpes ya escritos</span>
+          <span class="rf-barra" role="img" aria-label="90 por ciento"><i style="width:90%"></i></span>
+          <span class="rf-pct">90%</span>
+        </li>
+        <li class="rf hecho" data-estado="hecho" data-critico="0">
+          <span class="rf-id">RF-17.1</span>
+          <span class="rf-titulo">Conservar los golpes simultáneos</span>
+          <span class="rf-barra" role="img" aria-label="100 por ciento"><i style="width:100%"></i></span>
+          <span class="rf-pct">100%</span>
+        </li>
+        <li class="rf hecho" data-estado="hecho" data-critico="0">
+          <span class="rf-id">RF-17.2</span>
+          <span class="rf-titulo">Fusionar golpes de la misma pieza en un paso</span>
+          <span class="rf-barra" role="img" aria-label="100 por ciento"><i style="width:100%"></i></span>
+          <span class="rf-pct">100%</span>
+        </li>
+        <li class="rf hecho" data-estado="hecho" data-critico="0">
+          <span class="rf-id">RF-17.3</span>
+          <span class="rf-titulo">Ignorar soltar el pad y la intensidad cero</span>
+          <span class="rf-barra" role="img" aria-label="100 por ciento"><i style="width:100%"></i></span>
+          <span class="rf-pct">100%</span>
+        </li>
+      </ul>
+    </section>
+    <section class="grupo" data-grupo>
+      <header class="grupo-cab">
+        <h2>Transporte y sonido</h2>
+        <p class="grupo-dato"><strong>38%</strong> · 5 de 19 completos</p>
+      </header>
+      <ul class="lista">
+        <li class="rf hecho" data-estado="hecho" data-critico="0">
+          <span class="rf-id">RF-18.1</span>
+          <span class="rf-titulo">Tempo de 30 a 260 BPM escribiendo el número</span>
+          <span class="rf-barra" role="img" aria-label="100 por ciento"><i style="width:100%"></i></span>
+          <span class="rf-pct">100%</span>
+        </li>
+        <li class="rf hecho" data-estado="hecho" data-critico="0">
+          <span class="rf-id">RF-18.2</span>
+          <span class="rf-titulo">Elegir el compás</span>
+          <span class="rf-barra" role="img" aria-label="100 por ciento"><i style="width:100%"></i></span>
+          <span class="rf-pct">100%</span>
+        </li>
+        <li class="rf hecho" data-estado="hecho" data-critico="0">
+          <span class="rf-id">RF-18.3</span>
+          <span class="rf-titulo">Tempo fuera de rango al límite más cercano</span>
+          <span class="rf-barra" role="img" aria-label="100 por ciento"><i style="width:100%"></i></span>
+          <span class="rf-pct">100%</span>
+        </li>
+        <li class="rf hecho" data-estado="hecho" data-critico="0">
+          <span class="rf-id">RF-18.4</span>
+          <span class="rf-titulo">Numerador de 1 a 16, denominador 2, 4, 8 o 16</span>
+          <span class="rf-barra" role="img" aria-label="100 por ciento"><i style="width:100%"></i></span>
+          <span class="rf-pct">100%</span>
+        </li>
+        <li class="rf hecho" data-estado="hecho" data-critico="1">
+          <span class="rf-id">RF-19.1</span>
+          <span class="rf-titulo">Play reproduce desde el compás 1 <span class="critico">@CRITICO</span></span>
+          <span class="rf-barra" role="img" aria-label="100 por ciento"><i style="width:100%"></i></span>
+          <span class="rf-pct">100%</span>
+        </li>
+        <li class="rf parcial" data-estado="parcial" data-critico="0">
+          <span class="rf-id">RF-19.2</span>
+          <span class="rf-titulo">Detener la reproducción</span>
+          <span class="rf-barra" role="img" aria-label="90 por ciento"><i style="width:90%"></i></span>
+          <span class="rf-pct">90%</span>
+        </li>
+        <li class="rf parcial" data-estado="parcial" data-critico="0">
+          <span class="rf-id">RF-19.3</span>
+          <span class="rf-titulo">Reproducir en bucle</span>
+          <span class="rf-barra" role="img" aria-label="90 por ciento"><i style="width:90%"></i></span>
+          <span class="rf-pct">90%</span>
+        </li>
+        <li class="rf pendiente" data-estado="pendiente" data-critico="0">
+          <span class="rf-id">RF-20.1</span>
+          <span class="rf-titulo">Activar y desactivar el metrónomo</span>
+          <span class="rf-barra" role="img" aria-label="0 por ciento"><i style="width:0%"></i></span>
+          <span class="rf-pct">0%</span>
+        </li>
+        <li class="rf pendiente" data-estado="pendiente" data-critico="0">
+          <span class="rf-id">RF-20.2</span>
+          <span class="rf-titulo">Metrónomo durante la reproducción</span>
+          <span class="rf-barra" role="img" aria-label="0 por ciento"><i style="width:0%"></i></span>
+          <span class="rf-pct">0%</span>
+        </li>
+        <li class="rf pendiente" data-estado="pendiente" data-critico="0">
+          <span class="rf-id">RF-20.3</span>
+          <span class="rf-titulo">Metrónomo durante la grabación</span>
+          <span class="rf-barra" role="img" aria-label="0 por ciento"><i style="width:0%"></i></span>
+          <span class="rf-pct">0%</span>
+        </li>
+        <li class="rf pendiente" data-estado="pendiente" data-critico="0">
+          <span class="rf-id">RF-20.4</span>
+          <span class="rf-titulo">Metrónomo durante el Modo Práctica</span>
+          <span class="rf-barra" role="img" aria-label="0 por ciento"><i style="width:0%"></i></span>
+          <span class="rf-pct">0%</span>
+        </li>
+        <li class="rf pendiente" data-estado="pendiente" data-critico="0">
+          <span class="rf-id">RF-20.5</span>
+          <span class="rf-titulo">Pulso del compás con acento en el primer tiempo</span>
+          <span class="rf-barra" role="img" aria-label="0 por ciento"><i style="width:0%"></i></span>
+          <span class="rf-pct">0%</span>
+        </li>
+        <li class="rf pendiente" data-estado="pendiente" data-critico="0">
+          <span class="rf-id">RF-20.6</span>
+          <span class="rf-titulo">Metrónomo ajustado al tempo</span>
+          <span class="rf-barra" role="img" aria-label="0 por ciento"><i style="width:0%"></i></span>
+          <span class="rf-pct">0%</span>
+        </li>
+        <li class="rf pendiente" data-estado="pendiente" data-critico="0">
+          <span class="rf-id">RF-20.7</span>
+          <span class="rf-titulo">Metrónomo ajustado al compás</span>
+          <span class="rf-barra" role="img" aria-label="0 por ciento"><i style="width:0%"></i></span>
+          <span class="rf-pct">0%</span>
+        </li>
+        <li class="rf pendiente" data-estado="pendiente" data-critico="0">
+          <span class="rf-id">RF-20.8</span>
+          <span class="rf-titulo">Volumen propio del metrónomo</span>
+          <span class="rf-barra" role="img" aria-label="0 por ciento"><i style="width:0%"></i></span>
+          <span class="rf-pct">0%</span>
+        </li>
+        <li class="rf pendiente" data-estado="pendiente" data-critico="0">
+          <span class="rf-id">RF-21.1</span>
+          <span class="rf-titulo">Kit predefinido de samples reales</span>
+          <span class="rf-barra" role="img" aria-label="0 por ciento"><i style="width:0%"></i></span>
+          <span class="rf-pct">0%</span>
+        </li>
+        <li class="rf parcial" data-estado="parcial" data-critico="0">
+          <span class="rf-id">RF-21.2</span>
+          <span class="rf-titulo">Un sonido distinto para cada pieza</span>
+          <span class="rf-barra" role="img" aria-label="40 por ciento"><i style="width:40%"></i></span>
+          <span class="rf-pct">40%</span>
+        </li>
+        <li class="rf pendiente" data-estado="pendiente" data-critico="0">
+          <span class="rf-id">RF-21.3</span>
+          <span class="rf-titulo">Habilitar Play solo con el kit cargado</span>
+          <span class="rf-barra" role="img" aria-label="0 por ciento"><i style="width:0%"></i></span>
+          <span class="rf-pct">0%</span>
+        </li>
+        <li class="rf pendiente" data-estado="pendiente" data-critico="0">
+          <span class="rf-id">RF-21.4</span>
+          <span class="rf-titulo">Mostrar que el kit está cargando</span>
+          <span class="rf-barra" role="img" aria-label="0 por ciento"><i style="width:0%"></i></span>
+          <span class="rf-pct">0%</span>
+        </li>
+      </ul>
+    </section>
+    <section class="grupo" data-grupo>
+      <header class="grupo-cab">
+        <h2>Guardado y biblioteca</h2>
+        <p class="grupo-dato"><strong>0%</strong> · 0 de 10 completos</p>
+      </header>
+      <ul class="lista">
+        <li class="rf pendiente" data-estado="pendiente" data-critico="0">
+          <span class="rf-id">RF-22.1</span>
+          <span class="rf-titulo">Autoguardado en el servidor</span>
+          <span class="rf-barra" role="img" aria-label="0 por ciento"><i style="width:0%"></i></span>
+          <span class="rf-pct">0%</span>
+        </li>
+        <li class="rf pendiente" data-estado="pendiente" data-critico="0">
+          <span class="rf-id">RF-22.2</span>
+          <span class="rf-titulo">Recuperar la partitura en curso al abrir</span>
+          <span class="rf-barra" role="img" aria-label="0 por ciento"><i style="width:0%"></i></span>
+          <span class="rf-pct">0%</span>
+        </li>
+        <li class="rf pendiente" data-estado="pendiente" data-critico="0">
+          <span class="rf-id">RF-23.1</span>
+          <span class="rf-titulo">Guardar en la biblioteca con un nombre</span>
+          <span class="rf-barra" role="img" aria-label="0 por ciento"><i style="width:0%"></i></span>
+          <span class="rf-pct">0%</span>
+        </li>
+        <li class="rf pendiente" data-estado="pendiente" data-critico="0">
+          <span class="rf-id">RF-23.2</span>
+          <span class="rf-titulo">Volver a guardar sobre una partitura existente</span>
+          <span class="rf-barra" role="img" aria-label="0 por ciento"><i style="width:0%"></i></span>
+          <span class="rf-pct">0%</span>
+        </li>
+        <li class="rf pendiente" data-estado="pendiente" data-critico="0">
+          <span class="rf-id">RF-23.3</span>
+          <span class="rf-titulo">No guardar con el nombre vacío</span>
+          <span class="rf-barra" role="img" aria-label="0 por ciento"><i style="width:0%"></i></span>
+          <span class="rf-pct">0%</span>
+        </li>
+        <li class="rf pendiente" data-estado="pendiente" data-critico="0">
+          <span class="rf-id">RF-23.4</span>
+          <span class="rf-titulo">No guardar con el nombre de otra partitura</span>
+          <span class="rf-barra" role="img" aria-label="0 por ciento"><i style="width:0%"></i></span>
+          <span class="rf-pct">0%</span>
+        </li>
+        <li class="rf pendiente" data-estado="pendiente" data-critico="0">
+          <span class="rf-id">RF-24</span>
+          <span class="rf-titulo">Listado de la biblioteca</span>
+          <span class="rf-barra" role="img" aria-label="0 por ciento"><i style="width:0%"></i></span>
+          <span class="rf-pct">0%</span>
+        </li>
+        <li class="rf pendiente" data-estado="pendiente" data-critico="0">
+          <span class="rf-id">RF-25</span>
+          <span class="rf-titulo">Abrir una partitura de la biblioteca</span>
+          <span class="rf-barra" role="img" aria-label="0 por ciento"><i style="width:0%"></i></span>
+          <span class="rf-pct">0%</span>
+        </li>
+        <li class="rf pendiente" data-estado="pendiente" data-critico="0">
+          <span class="rf-id">RF-26.1</span>
+          <span class="rf-titulo">Confirmar antes de eliminar</span>
+          <span class="rf-barra" role="img" aria-label="0 por ciento"><i style="width:0%"></i></span>
+          <span class="rf-pct">0%</span>
+        </li>
+        <li class="rf pendiente" data-estado="pendiente" data-critico="0">
+          <span class="rf-id">RF-26.2</span>
+          <span class="rf-titulo">Eliminar la partitura de forma definitiva</span>
+          <span class="rf-barra" role="img" aria-label="0 por ciento"><i style="width:0%"></i></span>
+          <span class="rf-pct">0%</span>
+        </li>
+      </ul>
+    </section>
+    <section class="grupo" data-grupo>
+      <header class="grupo-cab">
+        <h2>Modo Práctica</h2>
+        <p class="grupo-dato"><strong>91%</strong> · 11 de 13 completos</p>
+      </header>
+      <ul class="lista">
+        <li class="rf hecho" data-estado="hecho" data-critico="0">
+          <span class="rf-id">RF-27.1</span>
+          <span class="rf-titulo">Ofrecer el Modo Práctica</span>
+          <span class="rf-barra" role="img" aria-label="100 por ciento"><i style="width:100%"></i></span>
+          <span class="rf-pct">100%</span>
+        </li>
+        <li class="rf hecho" data-estado="hecho" data-critico="0">
+          <span class="rf-id">RF-27.2</span>
+          <span class="rf-titulo">Arrancar con la partitura en silencio</span>
+          <span class="rf-barra" role="img" aria-label="100 por ciento"><i style="width:100%"></i></span>
+          <span class="rf-pct">100%</span>
+        </li>
+        <li class="rf hecho" data-estado="hecho" data-critico="0">
+          <span class="rf-id">RF-28</span>
+          <span class="rf-titulo">Destacar la próxima nota esperada</span>
+          <span class="rf-barra" role="img" aria-label="100 por ciento"><i style="width:100%"></i></span>
+          <span class="rf-pct">100%</span>
+        </li>
+        <li class="rf hecho" data-estado="hecho" data-critico="1">
+          <span class="rf-id">RF-29.1</span>
+          <span class="rf-titulo">Comparar cada golpe con la nota esperada más cercana <span class="critico">@CRITICO</span></span>
+          <span class="rf-barra" role="img" aria-label="100 por ciento"><i style="width:100%"></i></span>
+          <span class="rf-pct">100%</span>
+        </li>
+        <li class="rf hecho" data-estado="hecho" data-critico="1">
+          <span class="rf-id">RF-29.2</span>
+          <span class="rf-titulo">Verde hasta 100 ms de desvío <span class="critico">@CRITICO</span></span>
+          <span class="rf-barra" role="img" aria-label="100 por ciento"><i style="width:100%"></i></span>
+          <span class="rf-pct">100%</span>
+        </li>
+        <li class="rf hecho" data-estado="hecho" data-critico="1">
+          <span class="rf-id">RF-29.3</span>
+          <span class="rf-titulo">Amarillo hasta 250 ms de desvío <span class="critico">@CRITICO</span></span>
+          <span class="rf-barra" role="img" aria-label="100 por ciento"><i style="width:100%"></i></span>
+          <span class="rf-pct">100%</span>
+        </li>
+        <li class="rf hecho" data-estado="hecho" data-critico="1">
+          <span class="rf-id">RF-29.4</span>
+          <span class="rf-titulo">Rojo por más de 250 ms o pieza distinta <span class="critico">@CRITICO</span></span>
+          <span class="rf-barra" role="img" aria-label="100 por ciento"><i style="width:100%"></i></span>
+          <span class="rf-pct">100%</span>
+        </li>
+        <li class="rf hecho" data-estado="hecho" data-critico="0">
+          <span class="rf-id">RF-29.5</span>
+          <span class="rf-titulo">Marcar la nota omitida</span>
+          <span class="rf-barra" role="img" aria-label="100 por ciento"><i style="width:100%"></i></span>
+          <span class="rf-pct">100%</span>
+        </li>
+        <li class="rf hecho" data-estado="hecho" data-critico="0">
+          <span class="rf-id">RF-30.1</span>
+          <span class="rf-titulo">Pieza esperada en vivo</span>
+          <span class="rf-barra" role="img" aria-label="100 por ciento"><i style="width:100%"></i></span>
+          <span class="rf-pct">100%</span>
+        </li>
+        <li class="rf hecho" data-estado="hecho" data-critico="0">
+          <span class="rf-id">RF-30.2</span>
+          <span class="rf-titulo">Resultado de cada golpe en vivo</span>
+          <span class="rf-barra" role="img" aria-label="100 por ciento"><i style="width:100%"></i></span>
+          <span class="rf-pct">100%</span>
+        </li>
+        <li class="rf hecho" data-estado="hecho" data-critico="0">
+          <span class="rf-id">RF-30.3</span>
+          <span class="rf-titulo">Desvío en milisegundos con signo</span>
+          <span class="rf-barra" role="img" aria-label="100 por ciento"><i style="width:100%"></i></span>
+          <span class="rf-pct">100%</span>
+        </li>
+        <li class="rf parcial" data-estado="parcial" data-critico="0">
+          <span class="rf-id">RF-30.4</span>
+          <span class="rf-titulo">Usar el bucle en el Modo Práctica</span>
+          <span class="rf-barra" role="img" aria-label="80 por ciento"><i style="width:80%"></i></span>
+          <span class="rf-pct">80%</span>
+        </li>
+        <li class="rf pendiente" data-estado="pendiente" data-critico="0">
+          <span class="rf-id">RF-31</span>
+          <span class="rf-titulo">Volumen de la partitura independiente del metrónomo</span>
+          <span class="rf-barra" role="img" aria-label="0 por ciento"><i style="width:0%"></i></span>
+          <span class="rf-pct">0%</span>
+        </li>
+      </ul>
+    </section>
+    <section class="grupo" data-grupo>
+      <header class="grupo-cab">
+        <h2>Identificación de usuario</h2>
+        <p class="grupo-dato"><strong>0%</strong> · 0 de 8 completos</p>
+      </header>
+      <ul class="lista">
+        <li class="rf pendiente" data-estado="pendiente" data-critico="0">
+          <span class="rf-id">RF-32</span>
+          <span class="rf-titulo">Sesión de Google obligatoria para entrar</span>
+          <span class="rf-barra" role="img" aria-label="0 por ciento"><i style="width:0%"></i></span>
+          <span class="rf-pct">0%</span>
+        </li>
+        <li class="rf pendiente" data-estado="pendiente" data-critico="0">
+          <span class="rf-id">RF-33</span>
+          <span class="rf-titulo">Registro del usuario nuevo</span>
+          <span class="rf-barra" role="img" aria-label="0 por ciento"><i style="width:0%"></i></span>
+          <span class="rf-pct">0%</span>
+        </li>
+        <li class="rf pendiente" data-estado="pendiente" data-critico="0">
+          <span class="rf-id">RF-34</span>
+          <span class="rf-titulo">Login con el perfil existente</span>
+          <span class="rf-barra" role="img" aria-label="0 por ciento"><i style="width:0%"></i></span>
+          <span class="rf-pct">0%</span>
+        </li>
+        <li class="rf pendiente" data-estado="pendiente" data-critico="0">
+          <span class="rf-id">RF-35</span>
+          <span class="rf-titulo">Sesión persistente entre cierres</span>
+          <span class="rf-barra" role="img" aria-label="0 por ciento"><i style="width:0%"></i></span>
+          <span class="rf-pct">0%</span>
+        </li>
+        <li class="rf pendiente" data-estado="pendiente" data-critico="0">
+          <span class="rf-id">RF-35.1</span>
+          <span class="rf-titulo">Sin almacén seguro no se inicia sesión</span>
+          <span class="rf-barra" role="img" aria-label="0 por ciento"><i style="width:0%"></i></span>
+          <span class="rf-pct">0%</span>
+        </li>
+        <li class="rf pendiente" data-estado="pendiente" data-critico="0">
+          <span class="rf-id">RF-36</span>
+          <span class="rf-titulo">Cerrar sesión</span>
+          <span class="rf-barra" role="img" aria-label="0 por ciento"><i style="width:0%"></i></span>
+          <span class="rf-pct">0%</span>
+        </li>
+        <li class="rf pendiente" data-estado="pendiente" data-critico="0">
+          <span class="rf-id">RF-37</span>
+          <span class="rf-titulo">Cada partitura asociada a su dueño</span>
+          <span class="rf-barra" role="img" aria-label="0 por ciento"><i style="width:0%"></i></span>
+          <span class="rf-pct">0%</span>
+        </li>
+        <li class="rf pendiente" data-estado="pendiente" data-critico="0">
+          <span class="rf-id">RF-38</span>
+          <span class="rf-titulo">Biblioteca solo con las partituras del usuario</span>
+          <span class="rf-barra" role="img" aria-label="0 por ciento"><i style="width:0%"></i></span>
+          <span class="rf-pct">0%</span>
+        </li>
+      </ul>
+    </section>
+    <section class="grupo" data-grupo>
+      <header class="grupo-cab">
+        <h2>Conexión con el servidor</h2>
+        <p class="grupo-dato"><strong>0%</strong> · 0 de 3 completos</p>
+      </header>
+      <ul class="lista">
+        <li class="rf pendiente" data-estado="pendiente" data-critico="0">
+          <span class="rf-id">RF-39.1</span>
+          <span class="rf-titulo">Aviso de &quot;Sin conexión&quot; al abrir</span>
+          <span class="rf-barra" role="img" aria-label="0 por ciento"><i style="width:0%"></i></span>
+          <span class="rf-pct">0%</span>
+        </li>
+        <li class="rf pendiente" data-estado="pendiente" data-critico="0">
+          <span class="rf-id">RF-39.2</span>
+          <span class="rf-titulo">Sin acceso al editor sin conexión</span>
+          <span class="rf-barra" role="img" aria-label="0 por ciento"><i style="width:0%"></i></span>
+          <span class="rf-pct">0%</span>
+        </li>
+        <li class="rf pendiente" data-estado="pendiente" data-critico="0">
+          <span class="rf-id">RF-40</span>
+          <span class="rf-titulo">Aviso al perder la conexión durante el uso</span>
+          <span class="rf-barra" role="img" aria-label="0 por ciento"><i style="width:0%"></i></span>
+          <span class="rf-pct">0%</span>
+        </li>
+      </ul>
+    </section>
+
+  <p class="escala">100 = hecho y verificado (tests o prueba manual). Entre 1 y 99 = hay una parte hecha, falta conectarla, probarla o completarla. 0 = sin empezar.</p>
+</main>
+
+<script>
+  (function () {
+    var botones = document.querySelectorAll('[data-filtro]');
+    function aplicar(filtro) {
+      document.querySelectorAll('.rf').forEach(function (el) {
+        var ver = filtro === 'todos' || (filtro === 'criticos' && el.dataset.critico === '1') || (filtro === 'pendientes' && el.dataset.estado !== 'hecho');
+        el.hidden = !ver;
+      });
+      document.querySelectorAll('[data-grupo]').forEach(function (g) {
+        g.hidden = !g.querySelector('.rf:not([hidden])');
+      });
+      botones.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.filtro === filtro)); });
+    }
+    botones.forEach(function (b) { b.addEventListener('click', function () { aplicar(b.dataset.filtro); }); });
+  })();
+</script>
