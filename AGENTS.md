@@ -7,7 +7,7 @@ Drum Sync: escribir, escuchar y practicar partituras de batería con una baterí
 - React + TypeScript sobre Vite, con VexFlow para la notación.
 - Electron como cliente de escritorio; Electron Forge solo para empaquetar.
 - La app se distribuye como aplicación de escritorio Electron. Para desarrollo, el cliente debe poder correr también en Chrome o Edge en localhost.
-- Supabase como backend (Auth con Google, Postgres con Row Level Security, Storage para los sonidos), vía `supabase-js`. No hay servidor propio.
+- Supabase como backend (Auth con Google, Postgres con Row Level Security, Storage para los sonidos), vía `supabase-js`. No hay servidor propio!
 - Una sola base de datos: la Postgres de Supabase, para usuarios, partituras y configuración. La app no tiene base local.
 - Vitest para los tests y npm como gestor de paquetes.
 - Las versiones las fija `package.json`. Node en versión LTS.
