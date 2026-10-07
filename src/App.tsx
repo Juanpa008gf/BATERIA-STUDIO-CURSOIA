@@ -5,12 +5,14 @@ import type { MidiHit } from './midi';
 import { pieceForNote } from './midi';
 import { PanelBateria, type LastHit } from './PanelBateria';
 import { PanelPractica } from './PanelPractica';
+import { PanelToma } from './PanelToma';
 import { renderScore, xAtUnit, type Layout } from './pentagrama';
 import { clampTempo, DENOMINATORS, measureUnits, msPerUnit, NUMERATORS, type Piece, type Score } from './partitura';
 import { evaluateHit, type HitResult } from './practica';
 import { createPlayer, type PlayerPosition } from './reproductor';
 import { nextExpected, omittedNotes } from './sesionPractica';
 import { useMidi } from './useMidi';
+import { useToma } from './useToma';
 
 const TICK_MS = 25;
 
@@ -47,10 +49,14 @@ export function App() {
   live.current = { score, loop, mode };
   const nextId = useRef(0);
 
+  const toma = useToma({ score, onWrite: setScore });
+  const feedToma = toma.feed;
+
   const onHit = useCallback(
     (hit: MidiHit, timeStamp: number) => {
       const piece: Piece | null = pieceForNote(hit.note);
       setLastHit({ ...hit, piece });
+      if (piece) feedToma(piece, timeStamp);
 
       const { score: current, loop: looping, mode: currentMode } = live.current;
       if (currentMode !== 'practica' || !player.isPlaying() || !piece) return;
@@ -63,10 +69,13 @@ export function App() {
       const result = evaluateHit({ score: current, hit: { piece, timeMs } });
       setMarks((prev) => [...prev.filter((m) => m.lap === lap), { id: nextId.current++, lap, timeMs, result }]);
     },
-    [audio, player],
+    [audio, player, feedToma],
   );
 
   const midi = useMidi(onHit);
+
+  // RF-27.2: en Modo Práctica la partitura no suena; lo único que se oye es lo que toca el baterista.
+  useEffect(() => player.setScoreVolume(mode === 'practica' ? 0 : 1), [mode, player]);
 
   // RF-10.3: sin una entrada abierta no hay Modo Práctica.
   useEffect(() => {
@@ -186,6 +195,16 @@ export function App() {
     };
   })();
 
+  const recording = toma.fase !== 'inactiva';
+  // RF-10.3: sin una entrada MIDI abierta no se puede grabar, y se dice por qué.
+  const recordBlocked = !midi.state.connected
+    ? (midi.state.reason ?? 'Conectá la batería para grabar una toma.')
+    : practicing
+      ? 'Salí del Modo Práctica para grabar una toma.'
+      : playing
+        ? 'Detené la reproducción para grabar una toma.'
+        : null;
+
   const lastResult = marks.length ? marks[marks.length - 1].result : null;
 
   return (
@@ -193,7 +212,13 @@ export function App() {
       <h1>Drum Sync</h1>
 
       <div className="barra" role="toolbar" aria-label="Transporte">
-        {playing ? <button onClick={stop}>Detener</button> : <button onClick={play}>Play</button>}
+        {playing ? (
+          <button onClick={stop}>Detener</button>
+        ) : (
+          <button onClick={play} disabled={recording}>
+            Play
+          </button>
+        )}
         <label>
           <input type="checkbox" checked={loop} onChange={(e) => setLoop(e.target.checked)} />
           Bucle
@@ -208,6 +233,7 @@ export function App() {
             onBlur={commitTempo}
             onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()}
             aria-label="Tempo en BPM"
+            disabled={recording}
           />
           BPM
         </label>
@@ -217,6 +243,7 @@ export function App() {
             value={score.timeSignature.numerator}
             onChange={(e) => setSignature({ numerator: Number(e.target.value) })}
             aria-label="Numerador del compás"
+            disabled={recording}
           >
             {NUMERATORS.map((n) => (
               <option key={n}>{n}</option>
@@ -227,6 +254,7 @@ export function App() {
             value={score.timeSignature.denominator}
             onChange={(e) => setSignature({ denominator: Number(e.target.value) })}
             aria-label="Denominador del compás"
+            disabled={recording}
           >
             {DENOMINATORS.map((d) => (
               <option key={d}>{d}</option>
@@ -237,6 +265,7 @@ export function App() {
           <button
             className={mode === 'lectura' ? '' : 'secundario'}
             aria-pressed={mode === 'lectura'}
+            disabled={recording}
             onClick={() => changeMode('lectura')}
           >
             Lectura
@@ -244,7 +273,7 @@ export function App() {
           <button
             className={practicing ? '' : 'secundario'}
             aria-pressed={practicing}
-            disabled={!midi.state.connected}
+            disabled={!midi.state.connected || recording}
             title={midi.state.connected ? undefined : 'Conectá la batería para practicar'}
             onClick={() => changeMode('practica')}
           >
@@ -255,6 +284,18 @@ export function App() {
       </div>
 
       <PanelBateria midi={midi.state} lastHit={lastHit} onConnect={midi.connect} onSelect={midi.select} />
+
+      <PanelToma
+        fase={toma.fase}
+        compas={toma.compas}
+        measures={toma.config.measures}
+        grid={toma.config.grid}
+        blocked={recordBlocked}
+        onMeasures={toma.setMeasures}
+        onGrid={toma.setGrid}
+        onStart={toma.start}
+        onStop={toma.stop}
+      />
 
       {practicing && <PanelPractica result={lastResult} />}
 
