@@ -50,7 +50,9 @@ describe('RF-14.3 · cuantización de la toma', () => {
   // RNF-06: error máximo de medio paso.
   it.each(casos)('RNF-06: grilla $grid, el error nunca pasa de medio paso', ({ grid, pasoUnidades }) => {
     const msPorUnidad = 500 / U.negra;
-    for (let timeMs = 0; timeMs < 1990; timeMs += 7) {
+    // Un golpe que redondea al final de la toma cae en un compás no grabado y se descarta: se barre hasta ahí.
+    const limiteMs = 2000 - (pasoUnidades * msPorUnidad) / 2;
+    for (let timeMs = 0; timeMs < limiteMs; timeMs += 7) {
       const [n] = quantizeTake({ ...base, grid, hits: [{ piece: 'snare', timeMs }] });
       const errorMs = Math.abs(n.position * msPorUnidad - timeMs);
       expect(errorMs).toBeLessThanOrEqual((pasoUnidades * msPorUnidad) / 2 + 1e-9);
