@@ -1,6 +1,6 @@
 ---
 name: conventional-commit
-description: Genera mensajes de commit siguiendo Conventional Commits. Se usa al crear un commit o cuando el usuario pide un mensaje de commit.
+description: Genera mensajes de commit siguiendo Conventional Commits. Se usa al crear un commit o cuando el usuario pide un mensaje de commit. Palabras de activación: commit, commitear, comitear, hacer commit, guardar cambios, subir cambios, mensaje de commit, conventional commits, git commit, "commiteá", "hacé un commit".
 ---
 
 # Conventional Commit
