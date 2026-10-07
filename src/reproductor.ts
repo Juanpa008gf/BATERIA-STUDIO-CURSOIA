@@ -5,7 +5,8 @@ import { measureMs, measureUnits, msPerUnit, unitsPerBeat, type Piece, type Scor
 export interface AudioSink {
   /** Reloj de audio en segundos (AudioContext.currentTime). */
   readonly currentTime: number;
-  playNote(piece: Piece, time: number): void;
+  /** `gain` 1 es el nivel normal; 0 es silencio. */
+  playNote(piece: Piece, time: number, gain?: number): void;
   /** Click del metrónomo; `accent` marca el primer tiempo del compás. */
   playClick(time: number, accent: boolean): void;
   cancelPending(): void;
@@ -33,6 +34,8 @@ export interface Player {
   durationMs(): number;
   setLoop(loop: boolean): void;
   setScore(score: Score): void;
+  /** Volumen de la partitura, de 0 (silencio) a 1. El Modo Práctica la deja en 0 (RF-27.2). */
+  setScoreVolume(volume: number): void;
 }
 
 export const LOOKAHEAD_S = 0.12;
@@ -69,6 +72,7 @@ export function createPlayer(options: PlayerOptions): Player {
   const lookahead = options.lookaheadS ?? LOOKAHEAD_S;
   let score = options.score;
   let loop = options.loop ?? false;
+  let scoreVolume = 1;
   let { events, totalS } = buildEvents(score);
 
   let playing = false;
@@ -123,7 +127,7 @@ export function createPlayer(options: PlayerOptions): Player {
         const time = startTime + iteration * totalS + ev.offsetS;
         if (time >= now + lookahead) break;
         cursor++;
-        if (time >= now) audio.playNote(ev.piece, time);
+        if (time >= now) audio.playNote(ev.piece, time, scoreVolume);
       }
       if (!loop && now - startTime >= totalS) halt();
     },
@@ -135,6 +139,9 @@ export function createPlayer(options: PlayerOptions): Player {
     durationMs: () => totalS * 1000,
     setLoop(value) {
       loop = value;
+    },
+    setScoreVolume(volume) {
+      scoreVolume = Math.min(1, Math.max(0, volume));
     },
     setScore(next) {
       score = next;

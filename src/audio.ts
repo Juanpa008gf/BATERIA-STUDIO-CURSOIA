@@ -1,5 +1,7 @@
-// Salida de audio sobre Web Audio. Por ahora solo aporta el reloj: los sonidos llegan con el paso de sonido.
+// Salida de audio sobre Web Audio: el reloj, los sonidos de la batería y el corte al detener.
+import type { Piece } from './partitura';
 import type { AudioSink } from './reproductor';
+import { playPiece, type Voice } from './sonidos';
 
 export interface WebAudioSink extends AudioSink {
   /** El navegador exige un gesto del usuario para arrancar el audio: se llama desde el clic en Play. */
@@ -13,7 +15,25 @@ export interface WebAudioSink extends AudioSink {
 
 export function createWebAudioSink(): WebAudioSink {
   let ctx: AudioContext | null = null;
-  const context = () => (ctx ??= new AudioContext({ latencyHint: 'interactive' }));
+  let out: AudioNode | null = null;
+  const active = new Set<AudioScheduledSourceNode>();
+
+  function context(): AudioContext {
+    if (!ctx) {
+      ctx = new AudioContext({ latencyHint: 'interactive' });
+      // Un compresor suave evita que varias piezas simultáneas saturen.
+      const compressor = ctx.createDynamicsCompressor();
+      compressor.threshold.value = -14;
+      compressor.ratio.value = 4;
+      const master = ctx.createGain();
+      master.gain.value = 0.85;
+      master.connect(compressor);
+      compressor.connect(ctx.destination);
+      out = master;
+    }
+    return ctx;
+  }
+
   return {
     get currentTime() {
       return context().currentTime;
@@ -24,8 +44,28 @@ export function createWebAudioSink(): WebAudioSink {
     audioTimeAt(performanceMs) {
       return context().currentTime - (performance.now() - performanceMs) / 1000;
     },
-    playNote() {},
+    playNote(piece: Piece, time: number, gain = 1) {
+      if (gain <= 0) return;
+      const c = context();
+      const voice: Voice = playPiece(c, out!, piece, time, gain);
+      for (const node of voice) {
+        active.add(node);
+        node.addEventListener('ended', () => {
+          active.delete(node);
+          node.disconnect();
+        });
+      }
+    },
     playClick() {},
-    cancelPending() {},
+    cancelPending() {
+      for (const node of active) {
+        try {
+          node.stop();
+        } catch {
+          // Todavía no había arrancado o ya terminó.
+        }
+      }
+      active.clear();
+    },
   };
 }
